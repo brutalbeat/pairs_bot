@@ -9,16 +9,21 @@ def generate_signals(df, entry_z=2.0, exit_z=0.5, stop_z=4.0):
     
     for i in range(1, len(df)):
         if state == 0:
-            if z[i] > entry_z:
-                state = -1
-            elif z[i] < entry_z:
-                state = 1
+            if z[i] > entry_z: 
+                state = -1  # short
+            elif z[i] < -entry_z: 
+                state = 1  # long
         elif state == 1:
-            if z[i] > -exit_z or z[i] < -stop_z:
-                state = 0
+            if z[i] > -exit_z: 
+                state = 0  # mean reversion toward 0
+            elif z[i] < -stop_z: 
+                state = 0  # stop loss
         elif state == -1:
-            if z[i] < exit_z or z[i] > stop_z:
+            if z[i] < exit_z: 
                 state = 0
+            elif z[i] > stop_z: 
+                state = 0
+
         
         position[i] = state
     
