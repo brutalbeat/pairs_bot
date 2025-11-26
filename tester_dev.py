@@ -93,7 +93,7 @@ df["pos_X"] = -df["position"] * beta * notional  # hedge
 df["pnl_Y"] = df["pos_Y"].shift(1) * df["ret_Y"]
 df["pnl_X"] = df["pos_X"].shift(1) * df["ret_X"]
 df["pnl_gross"] = (df["pnl_Y"] + df["pnl_X"]).fillna(0.0)
-
+# transaction costs, typically between 2-5bps 
 tc_bps = 2
 tc_rate = tc_bps / 10_000.0
 
