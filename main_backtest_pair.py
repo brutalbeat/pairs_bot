@@ -10,8 +10,8 @@ from pairs_bot.backtest import backtest_pair
 from pairs_bot.plotting import plot_equity_curve
 
 
-PAIR_X = "XLF"
-PAIR_Y = "KRE"
+PAIR_X = "XLE"
+PAIR_Y = "XOM"
 
 def main():
     prices = download_prices([PAIR_X, PAIR_Y],START_DATE, END_DATE)

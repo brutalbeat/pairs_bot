@@ -10,6 +10,7 @@ def estimate_hedge_ratio(y, x):
 
 def build_spread(df, lookback=60):
     df = df.copy()
+    df = df[["X", "Y"]].dropna()
     # this method uses a rolling lookback window so the spread track shifts,
     # keeping beta in sync with the same window used to calculate mean and std.
     alphas = []
