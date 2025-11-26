@@ -31,5 +31,5 @@ def main():
     
     plot_equity_curve(result["df"], title=f"Equity Curve: {PAIR_X} - {PAIR_Y}")
     
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
