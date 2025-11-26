@@ -51,3 +51,72 @@ plt.axhline(-2, color="red")
 plt.axhline(0, color="black")
 plt.show()
 
+# logic for the bot
+entry_z = 2.0
+exit_z = 0.5
+stop_z = 4.0
+
+position = np.zeros(len(df)) #+1 is long, -1 is short, 0 is flat
+state = 0
+
+z = df["zscore"].values
+
+for i in range(1, len(df)):
+    if state == 0:
+        if z[i] > entry_z:
+            state = -1
+        elif z[i]< entry_z:
+            state = 1
+    elif state == 1:
+        if z[i] > -exit_z or z[i] < -stop_z:
+            state = 0
+    elif state == -1:
+        if z[i] < exit_z or z[i] > stop_z:
+            state = 0
+            
+    position[i] = state
+    
+df["position"] = position
+print(df[["zscore", "position"]].tail(30))
+
+
+
+df["ret_X"] = df["X"].pct_change().fillna(0.0)
+df["ret_Y"] = df["Y"].pct_change().fillna(0.0)
+
+initial_capital = 100_000
+notional = initial_capital
+
+df["pos_Y"] = df["position"] * notional
+df["pos_X"] = -df["position"] * beta * notional  # hedge
+
+df["pnl_Y"] = df["pos_Y"].shift(1) * df["ret_Y"]
+df["pnl_X"] = df["pos_X"].shift(1) * df["ret_X"]
+df["pnl_gross"] = (df["pnl_Y"] + df["pnl_X"]).fillna(0.0)
+
+tc_bps = 2
+tc_rate = tc_bps / 10_000.0
+
+df["trade_Y"] = df["pos_Y"].diff().abs().fillna(0.0)
+df["trade_X"] = df["pos_X"].diff().abs().fillna(0.0)
+df["tc"] = -tc_rate * (df["trade_Y"] + df["trade_X"])
+
+df["pnl_net"] = df["pnl_gross"] + df["tc"]
+df["equity"] = initial_capital + df["pnl_net"].cumsum()
+df["returns"] = df["equity"].pct_change().fillna(0.0)
+
+
+total_return = df["equity"].iloc[-1] / df["equity"].iloc[0] - 1
+ann_factor = 252
+mean_ret = df["returns"].mean()
+std_ret = df["returns"].std()
+# calcualte sharpe ratio
+
+sharpe = 0 if std_ret == 0 else (mean_ret * ann_factor) / (std_ret * np.sqrt(ann_factor))
+
+print(f"Total return: {total_return*100:.2f}%")
+print(f"Sharpe ratio: {sharpe:.2f}")
+
+df["equity"].plot(title="Equity Curve")
+plt.ylabel("Equity ($)")
+plt.show()
