@@ -21,12 +21,14 @@ def build_spread(df, lookback=60):
         a, b = estimate_hedge_ratio(window['Y'], window['X'])
         alphas.append(a)
         betas.append(b)
-        df["alpha"] = alphas
-        df["beta"] = betas
-        df["spread"] = df["Y"] - (df["alpha"] + df["beta"] * df["X"])
-        df["zscore"] = (df["spread"] - df["spread"].rolling(lookback).mean()) / df["spread"].rolling(lookback).std()
-            
-            
+        
+        
+    df["alpha"] = alphas
+    df["beta"] = betas
+    df["spread"] = df["Y"] - (df["alpha"] + df["beta"] * df["X"])
+    df["zscore"] = (df["spread"] - df["spread"].rolling(lookback).mean()) / df["spread"].rolling(lookback).std()
+        
+    return df
     
     
     
