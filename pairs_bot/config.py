@@ -1,13 +1,34 @@
 # need more research on most traded pairs, but this is the starting point
 UNIVERSE = [
-    "XLF", "KRE", "JPM", "BAC", "C", "MS", "GS", "WFC",
-    "XLK", "AAPL", "MSFT", "GOOG", "META", "GOOGL", "XOM",
-    "SPY", "IVV", "IWM", "XLE", "UAL", "AAL", "BP", "SHEL", 
-    "USB", "PNC", "KO", "PEP"
+
+    # Index trackers
+    "SPY", "IVV", "VOO",
+    "IWM", "VTWO",
+    "QQQ", "VGT",
+
+    # Sector ETFs (paired with top constituents)
+    "XLK", "XLF", "XLE", "XLP", "XLV", "XLI", "XLY", "XLC",
+    "SMH", "SOXX",
+
+    # Mega-cap tech (tech pairs)
+    "AAPL", "MSFT", "NVDA", "AMD", "META", "GOOG", "GOOGL",
+
+    # Energy majors (classic cointegration)
+    "XOM", "CVX", "BP", "SHEL",
+
+    # Banks (cointegration-friendly)
+    "JPM", "BAC", "GS", "MS", "WFC", "C",
+
+    # Payments (very tight)
+    "V", "MA", "AXP",
+
+    # International ETF pairs
+    "EEM", "VWO",
+    "EFA", "IEFA",
 ]
 
 
-START_DATE = "2016-01-01"
+START_DATE = "2022-01-01"
 END_DATE = "2025-11-26"
 
 LOOKBACK_SPREAD = 90

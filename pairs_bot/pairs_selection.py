@@ -55,21 +55,21 @@ def hurst_exponent(ts: np.ndarray) -> float:
 
 def find_cointegrated_pairs(
     prices: pd.DataFrame,
-    max_pvalue: float = 0.02,   # stricter cointegration threshold
-    min_corr: float = 0.9,      # strong positive correlation only
-    min_samples: int = 250,     # at least ~1 trading year
-    max_adf_pvalue: float = 0.02,
-    max_hurst: float = 0.45,
-    max_ac1: float = 0.2,
+    max_pvalue: float = 0.05,   # stricter cointegration threshold
+    min_corr: float = 0.91,      # strong positive correlation only
+    min_samples: int = 200,     # at least ~1 trading year
+    max_adf_pvalue: float = 0.05,
+    max_hurst: float = 0.55,
+    max_ac1: float = 0.3,
 ) -> List[Dict]:
     """
     Scan all pairs of columns in `prices` and return truly cointegrated pairs.
 
-    Parameters
+    parameters
     ----------
     prices : DataFrame
         Wide price table. Columns = tickers, index = dates. Should be RAW prices
-        (e.g. yfinance auto_adjust=False).
+        yfinance auto_adjust=False.
     max_pvalue : float
         Maximum Engle–Granger cointegration p-value to accept.
     min_corr : float
@@ -83,10 +83,10 @@ def find_cointegrated_pairs(
     max_ac1 : float
         Maximum lag-1 autocorrelation for the spread.
 
-    Returns
+    returns
     -------
     List[Dict]
-        Each dict:
+        each dict:
         {
             "x": ticker1,
             "y": ticker2,
@@ -98,7 +98,7 @@ def find_cointegrated_pairs(
             "hurst": float,    # Hurst exponent of spread
             "ac1": float,      # lag-1 autocorrelation of spread
         }
-        Sorted by pvalue ascending.
+        sorted by pvalue ascending.
     """
     tickers = prices.columns
     pairs: List[Dict] = []
@@ -113,33 +113,33 @@ def find_cointegrated_pairs(
         x = np.log(joined[i])
         y = np.log(joined[j])
 
-        # 1) correlation filter – POSITIVE only
+        #  correlation filter – POSITIVE only
         corr = x.corr(y)
         if corr < min_corr:
             continue
 
-        # 2) Engle–Granger cointegration test
+        #  Engle–Granger cointegration test
         stat, pvalue, _ = coint(x, y)
         if np.isnan(pvalue) or pvalue > max_pvalue:
             continue
 
-        # 3) hedge ratio & spread
+        #  hedge ratio & spread
         beta = np.polyfit(x, y, 1)[0]
         spread = y - beta * x
 
-        # 4) ADF on spread (must be stationary)
+        #  ADF on spread (must be stationary)
         adf_p = adfuller(spread)[1]
         if np.isnan(adf_p) or adf_p > max_adf_pvalue:
             continue
 
-        # 5) Hurst exponent (must be mean-reverting)
+        #  Hurst exponent (must be mean-reverting)
         H = hurst_exponent(spread.values)
         if H >= max_hurst:
             continue
 
-        # 6) Mean reversion sanity check: low lag-1 autocorr
+        #  Mean reversion sanity check: low lag-1 autocorr
         ac1 = float(spread.autocorr(lag=1))
-        if ac1 > max_ac1:
+        if ac1 < max_ac1:
             continue
 
         # if we get here, it's a "real" pair
