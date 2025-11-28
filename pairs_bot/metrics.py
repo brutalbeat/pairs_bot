@@ -18,5 +18,5 @@ def compute_performance_metrics(equity, returns, trading_days=252):
     return {
          "total_return": total_return,
         "sharpe": sharpe,
-        "max_drawdown": max_dd # do i need a comma here??
+        "max_drawdown": max_dd 
     }
