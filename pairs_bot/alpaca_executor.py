@@ -1,10 +1,41 @@
 import math
+import os
 from typing import Dict, List, Optional
 
 import alpaca_trade_api as tradeapi
 
-from pairs_bot.live.data_feed import get_last_price
-from pairs_bot.live.portfolio import current_position_map
+
+def get_client() -> tradeapi.REST:
+    """
+    Build an Alpaca REST client using env vars:
+    APCA_API_KEY_ID, APCA_API_SECRET_KEY, APCA_API_BASE_URL.
+    Defaults to paper trading URL if base is unset.
+    """
+    key = os.environ["APCA_API_KEY_ID"]
+    secret = os.environ["APCA_API_SECRET_KEY"]
+    base_url = os.getenv("APCA_API_BASE_URL", "https://paper-api.alpaca.markets")
+    return tradeapi.REST(key, secret, base_url, api_version="v2")
+
+
+def get_last_price(api: tradeapi.REST, symbol: str) -> Optional[float]:
+    """Fetch the latest trade price; returns None if unavailable."""
+    try:
+        trade = api.get_latest_trade(symbol)
+        return float(trade.price)
+    except Exception:
+        return None
+
+
+def current_position_map(api: tradeapi.REST) -> Dict[str, float]:
+    """Map of symbol -> signed quantity for all open positions."""
+    positions = {}
+    for pos in api.list_positions():
+        try:
+            qty = float(pos.qty)
+        except Exception:
+            qty = 0.0
+        positions[pos.symbol.upper()] = qty
+    return positions
 
 
 def submit_delta_order(api: tradeapi.REST, symbol: str, delta_qty: float):
