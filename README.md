@@ -46,7 +46,7 @@ Helpers:
 - `portfolio.py` maps current positions.
 - `execution.py` computes deltas and submits orders to reach target state.
 
-## Config knobs
+## Config
 See `pairs_bot/config.py` for universe, dates, lookback, entry/exit/stop z-scores, capital, and transaction cost bps. Tune `pairs_bot/pairs_selection.py` thresholds for pair discovery and `pairs_bot/signals.py` logic for signal bands.
 
 ## Notes
